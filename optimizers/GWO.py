@@ -13,10 +13,12 @@ import time
 
 import numpy
 
+import Config
 from solution import solution
 
 
 def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
+    cnf = Config.Config()
 
     # maxIter = 1000
     # lb = -100
@@ -133,12 +135,13 @@ def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
 
                 positions[i, j] = (X1 + X2 + X3) / 3  # Equation (3.7)
 
-        convergenceCurve[l] = alphaScore
+        if(cnf.verbosity):
+            convergenceCurve[l] = alphaScore
 
-        if l % 1 == 0:
-            print(
-                ["At iteration " + str(l) + " the best fitness is " + str(alphaScore)]
-            )
+            if l % 1 == 0:
+                print(
+                    ["At iteration " + str(l) + " the best fitness is " + str(alphaScore)]
+                )
 
     timerEnd = time.time()
     s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")

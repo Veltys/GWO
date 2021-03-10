@@ -15,3 +15,4 @@ class Config(metaclass = ConfigSingleton):
     def __init__(self):
         self.benchmark = 1
         self.dimensions = 10
+        self.verbosity = False

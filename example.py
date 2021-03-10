@@ -22,7 +22,7 @@ def main(argv):
     try:
         opts, _ = getopt.getopt(
             argv,
-            'b:d:',
+            'b:d:v',
             [
                 'bench=',
                 'dim=',
@@ -30,9 +30,10 @@ def main(argv):
         )
 
     except getopt.GetoptError:
-        print('Usage: example.py [-b benchmark_id or --bench=benchmark_id] [-d dimensions or --dim=dimensions]')
+        print('Usage: example.py [-b benchmark_id or --bench=benchmark_id] [-d dimensions or --dim=dimensions] [-v]')
 
         sys.exit(2)
+
 
     for opt, arg in opts:
         if opt in ('-b', '--bench'):
@@ -40,6 +41,9 @@ def main(argv):
 
         elif opt in ('-d', '--dim'):
             cnf.dimensions = int(arg)
+
+        elif opt in ('-v'):
+            cnf.verbosity = True
 
 
     # Select optimizers
