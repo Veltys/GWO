@@ -9,12 +9,39 @@ Created on Tue May 17 15:50:25 2016
 """
 
 
+import getopt
 import sys
 
+import Config
 from optimizer import run
 
 
 def main(argv):
+    cnf = Config.Config()
+
+    try:
+        opts, _ = getopt.getopt(
+            argv,
+            'b:d:',
+            [
+                'bench=',
+                'dim=',
+            ]
+        )
+
+    except getopt.GetoptError:
+        print('Usage: example.py [-b benchmark_id or --bench=benchmark_id] [-d dimensions or --dim=dimensions]')
+
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt in ('-b', '--bench'):
+            cnf.benchmark = int(arg)
+
+        elif opt in ('-d', '--dim'):
+            cnf.dimensions = int(arg)
+
+
     # Select optimizers
     # "SSA","PSO","GA","BAT","FFA","GWO","WOA","MVO","MFO","CS","HHO","SCA","JAYA","DE"
     optimizer = ["GWO"]
