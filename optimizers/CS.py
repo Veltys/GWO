@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Tue May 24 13:13:28 2016
 
 @author: Hossam Faris
 """
+
+
 import math
-import numpy
 import random
 import time
+
+import numpy
+
 from solution import solution
 
 
-def get_cuckoos(nest, best, lb, ub, n, dim):
+def getCuckoos(nest, best, lb, ub, n, dim):
 
     # perform Levy flights
-    tempnest = numpy.zeros((n, dim))
+    # tempnest = numpy.zeros((n, dim))
     tempnest = numpy.array(nest)
     beta = 3 / 2
     sigma = (
@@ -40,9 +46,9 @@ def get_cuckoos(nest, best, lb, ub, n, dim):
     return tempnest
 
 
-def get_best_nest(nest, newnest, fitness, n, dim, objf):
+def getBestNest(nest, newnest, fitness, n, dim, objf):
     # Evaluating all new solutions
-    tempnest = numpy.zeros((n, dim))
+    # tempnest = numpy.zeros((n, dim))
     tempnest = numpy.copy(nest)
 
     for j in range(0, n):
@@ -62,10 +68,10 @@ def get_best_nest(nest, newnest, fitness, n, dim, objf):
 
 
 # Replace some nests by constructing new solutions/nests
-def empty_nests(nest, pa, n, dim):
+def emptyNests(nest, pa, n, dim):
 
     # Discovered or not
-    tempnest = numpy.zeros((n, dim))
+    # tempnest = numpy.zeros((n, dim))
 
     K = numpy.random.uniform(0, 1, (n, dim)) > pa
 
@@ -92,11 +98,8 @@ def CS(objf, lb, ub, dim, n, N_IterTotal):
     # Discovery rate of alien eggs/solutions
     pa = 0.25
 
-    nd = dim
-
     #    Lb=[lb]*nd
     #    Ub=[ub]*nd
-    convergence = []
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
@@ -107,10 +110,10 @@ def CS(objf, lb, ub, dim, n, N_IterTotal):
     for i in range(dim):
         nest[:, i] = numpy.random.uniform(0, 1, n) * (ub[i] - lb[i]) + lb[i]
 
-    new_nest = numpy.zeros((n, dim))
-    new_nest = numpy.copy(nest)
+    # newNest = numpy.zeros((n, dim))
+    newNest = numpy.copy(nest)
 
-    bestnest = [0] * dim
+    # bestnest = [0] * dim
 
     fitness = numpy.zeros(n)
     fitness.fill(float("inf"))
@@ -122,28 +125,28 @@ def CS(objf, lb, ub, dim, n, N_IterTotal):
     timerStart = time.time()
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
 
-    fmin, bestnest, nest, fitness = get_best_nest(nest, new_nest, fitness, n, dim, objf)
+    fmin, bestnest, nest, fitness = getBestNest(nest, newNest, fitness, n, dim, objf)
     convergence = []
     # Main loop counter
-    for iter in range(0, N_IterTotal):
+    for iterator in range(0, N_IterTotal):
         # Generate new solutions (but keep the current best)
 
-        new_nest = get_cuckoos(nest, bestnest, lb, ub, n, dim)
+        newNest = getCuckoos(nest, bestnest, lb, ub, n, dim)
 
         # Evaluate new solutions and find best
-        fnew, best, nest, fitness = get_best_nest(nest, new_nest, fitness, n, dim, objf)
+        fnew, best, nest, fitness = getBestNest(nest, newNest, fitness, n, dim, objf)
 
-        new_nest = empty_nests(new_nest, pa, n, dim)
+        newNest = emptyNests(newNest, pa, n, dim)
 
         # Evaluate new solutions and find best
-        fnew, best, nest, fitness = get_best_nest(nest, new_nest, fitness, n, dim, objf)
+        fnew, best, nest, fitness = getBestNest(nest, newNest, fitness, n, dim, objf)
 
         if fnew < fmin:
             fmin = fnew
             bestnest = best
 
-        if iter % 10 == 0:
-            print(["At iteration " + str(iter) + " the best fitness is " + str(fmin)])
+        if iterator % 10 == 0:
+            print(["At iteration " + str(iterator) + " the best fitness is " + str(fmin)])
         convergence.append(fmin)
 
     timerEnd = time.time()

@@ -1,41 +1,47 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Mon May 16 14:19:49 2016
 
 @author: hossam
 """
-import random
-import numpy
+
+
 import math
-from solution import solution
+import random
 import time
 
+import numpy
 
-def WOA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
+from solution import solution
 
-    # dim=30
-    # SearchAgents_no=50
-    # lb=-100
-    # ub=100
-    # Max_iter=500
+
+def WOA(objf, lb, ub, dim, searchAgentsNo, maxIter):
+
+    # dim = 30
+    # searchAgentsNo = 50
+    # lb = -100
+    # ub = 100
+    # maxIter = 500
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
         ub = [ub] * dim
 
     # initialize position vector and score for the leader
-    Leader_pos = numpy.zeros(dim)
-    Leader_score = float("inf")  # change this to -inf for maximization problems
+    leaderPos = numpy.zeros(dim)
+    leaderScore = float("inf")  # change this to -inf for maximization problems
 
     # Initialize the positions of search agents
-    Positions = numpy.zeros((SearchAgents_no, dim))
+    positions = numpy.zeros((searchAgentsNo, dim))
     for i in range(dim):
-        Positions[:, i] = (
-            numpy.random.uniform(0, 1, SearchAgents_no) * (ub[i] - lb[i]) + lb[i]
+        positions[:, i] = (
+            numpy.random.uniform(0, 1, searchAgentsNo) * (ub[i] - lb[i]) + lb[i]
         )
 
     # Initialize convergence
-    convergence_curve = numpy.zeros(Max_iter)
+    convergence_curve = numpy.zeros(maxIter)
 
     ############################
     s = solution()
@@ -49,34 +55,34 @@ def WOA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
     t = 0  # Loop counter
 
     # Main loop
-    while t < Max_iter:
-        for i in range(0, SearchAgents_no):
+    while t < maxIter:
+        for i in range(0, searchAgentsNo):
 
             # Return back the search agents that go beyond the boundaries of the search space
 
-            # Positions[i,:]=checkBounds(Positions[i,:],lb,ub)
+            # positions[i,:]=checkBounds(positions[i,:],lb,ub)
             for j in range(dim):
-                Positions[i, j] = numpy.clip(Positions[i, j], lb[j], ub[j])
+                positions[i, j] = numpy.clip(positions[i, j], lb[j], ub[j])
 
             # Calculate objective function for each search agent
-            fitness = objf(Positions[i, :])
+            fitness = objf(positions[i, :])
 
             # Update the leader
-            if fitness < Leader_score:  # Change this to > for maximization problem
-                Leader_score = fitness
+            if fitness < leaderScore:  # Change this to > for maximization problem
+                leaderScore = fitness
                 # Update alpha
-                Leader_pos = Positions[
+                leaderPos = positions[
                     i, :
                 ].copy()  # copy current whale position into the leader position
 
-        a = 2 - t * ((2) / Max_iter)
+        a = 2 - t * ((2) / maxIter)
         # a decreases linearly fron 2 to 0 in Eq. (2.3)
 
         # a2 linearly decreases from -1 to -2 to calculate t in Eq. (3.12)
-        a2 = -1 + t * ((-1) / Max_iter)
+        a2 = -1 + t * ((-1) / maxIter)
 
         # Update the Position of search agents
-        for i in range(0, SearchAgents_no):
+        for i in range(0, searchAgentsNo):
             r1 = random.random()  # r1 is a random number in [0,1]
             r2 = random.random()  # r2 is a random number in [0,1]
 
@@ -94,29 +100,29 @@ def WOA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
                 if p < 0.5:
                     if abs(A) >= 1:
                         rand_leader_index = math.floor(
-                            SearchAgents_no * random.random()
+                            searchAgentsNo * random.random()
                         )
-                        X_rand = Positions[rand_leader_index, :]
-                        D_X_rand = abs(C * X_rand[j] - Positions[i, j])
-                        Positions[i, j] = X_rand[j] - A * D_X_rand
+                        X_rand = positions[rand_leader_index, :]
+                        D_X_rand = abs(C * X_rand[j] - positions[i, j])
+                        positions[i, j] = X_rand[j] - A * D_X_rand
 
                     elif abs(A) < 1:
-                        D_Leader = abs(C * Leader_pos[j] - Positions[i, j])
-                        Positions[i, j] = Leader_pos[j] - A * D_Leader
+                        D_Leader = abs(C * leaderPos[j] - positions[i, j])
+                        positions[i, j] = leaderPos[j] - A * D_Leader
 
                 elif p >= 0.5:
 
-                    distance2Leader = abs(Leader_pos[j] - Positions[i, j])
+                    distance2Leader = abs(leaderPos[j] - positions[i, j])
                     # Eq. (2.5)
-                    Positions[i, j] = (
+                    positions[i, j] = (
                         distance2Leader * math.exp(b * l) * math.cos(l * 2 * math.pi)
-                        + Leader_pos[j]
+                        + leaderPos[j]
                     )
 
-        convergence_curve[t] = Leader_score
+        convergence_curve[t] = leaderScore
         if t % 1 == 0:
             print(
-                ["At iteration " + str(t) + " the best fitness is " + str(Leader_score)]
+                ["At iteration " + str(t) + " the best fitness is " + str(leaderScore)]
             )
         t = t + 1
 
@@ -126,7 +132,7 @@ def WOA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
     s.convergence = convergence_curve
     s.optimizer = "WOA"
     s.objfname = objf.__name__
-    s.best = Leader_score
-    s.bestIndividual = Leader_pos
+    s.best = leaderScore
+    s.bestIndividual = leaderPos
 
     return s

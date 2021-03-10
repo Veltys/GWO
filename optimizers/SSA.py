@@ -1,31 +1,36 @@
-import random
-import numpy
+# -*- coding: utf-8 -*-
+
+
 import math
-from solution import solution
+import random
 import time
 
+import numpy
 
-def SSA(objf, lb, ub, dim, N, Max_iteration):
+from solution import solution
 
-    # Max_iteration=1000
-    # lb=-100
-    # ub=100
-    # dim=30
-    N = 50  # Number of search agents
+
+def SSA(objf, lb, ub, dim, n, maxIteration):
+
+    # maxIteration = 1000
+    # lb = -100
+    # ub = 100
+    # dim = 30
+    n = 50  # Number of search agents
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
         ub = [ub] * dim
-    Convergence_curve = numpy.zeros(Max_iteration)
+    convergenceCurve = numpy.zeros(maxIteration)
 
     # Initialize the positions of salps
-    SalpPositions = numpy.zeros((N, dim))
+    SalpPositions = numpy.zeros((n, dim))
     for i in range(dim):
-        SalpPositions[:, i] = numpy.random.uniform(0, 1, N) * (ub[i] - lb[i]) + lb[i]
-    SalpFitness = numpy.full(N, float("inf"))
+        SalpPositions[:, i] = numpy.random.uniform(0, 1, n) * (ub[i] - lb[i]) + lb[i]
+    SalpFitness = numpy.full(n, float("inf"))
 
-    FoodPosition = numpy.zeros(dim)
-    FoodFitness = float("inf")
+    # FoodPosition = numpy.zeros(dim)
+    # FoodFitness = float("inf")
     # Moth_fitness=numpy.fell(float("inf"))
 
     s = solution()
@@ -35,7 +40,7 @@ def SSA(objf, lb, ub, dim, N, Max_iteration):
     timerStart = time.time()
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
 
-    for i in range(0, N):
+    for i in range(0, n):
         # evaluate moths
         SalpFitness[i] = objf(SalpPositions[i, :])
 
@@ -50,19 +55,19 @@ def SSA(objf, lb, ub, dim, N, Max_iteration):
     Iteration = 1
 
     # Main loop
-    while Iteration < Max_iteration:
+    while Iteration < maxIteration:
 
         # Number of flames Eq. (3.14) in the paper
-        # Flame_no=round(N-Iteration*((N-1)/Max_iteration));
+        # Flame_no=round(n-Iteration*((n-1)/maxIteration));
 
-        c1 = 2 * math.exp(-((4 * Iteration / Max_iteration) ** 2))
+        c1 = 2 * math.exp(-((4 * Iteration / maxIteration) ** 2))
         # Eq. (3.2) in the paper
 
-        for i in range(0, N):
+        for i in range(0, n):
 
             SalpPositions = numpy.transpose(SalpPositions)
 
-            if i < N / 2:
+            if i < n / 2:
                 for j in range(0, dim):
                     c2 = random.random()
                     c3 = random.random()
@@ -78,7 +83,7 @@ def SSA(objf, lb, ub, dim, N, Max_iteration):
 
                     ####################
 
-            elif i >= N / 2 and i < N + 1:
+            elif i >= n / 2 and i < n + 1:
                 point1 = SalpPositions[:, i - 1]
                 point2 = SalpPositions[:, i]
 
@@ -87,7 +92,7 @@ def SSA(objf, lb, ub, dim, N, Max_iteration):
 
             SalpPositions = numpy.transpose(SalpPositions)
 
-        for i in range(0, N):
+        for i in range(0, n):
 
             # Check if salps go out of the search spaceand bring it back
             for j in range(dim):
@@ -110,14 +115,14 @@ def SSA(objf, lb, ub, dim, N, Max_iteration):
                 ]
             )
 
-        Convergence_curve[Iteration] = FoodFitness
+        convergenceCurve[Iteration] = FoodFitness
 
         Iteration = Iteration + 1
 
     timerEnd = time.time()
     s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
     s.executionTime = timerEnd - timerStart
-    s.convergence = Convergence_curve
+    s.convergence = convergenceCurve
     s.optimizer = "SSA"
     s.objfname = objf.__name__
 

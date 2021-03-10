@@ -1,30 +1,34 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Wed May 11 17:06:34 2016
 
 @author: hossam
 """
-import random
-import numpy
-import time
+
+
 import math
-import sklearn
+import random
+
 from numpy import asarray
+import numpy
+
 from sklearn.preprocessing import normalize
 from solution import solution
 
 
-def normr(Mat):
+def normr(mat):
     """normalize the columns of the matrix
     B= normr(A) normalizes the row
     the dtype of A is float"""
-    Mat = Mat.reshape(1, -1)
+    mat = mat.reshape(1, -1)
     # Enforce dtype float
-    if Mat.dtype != "float":
-        Mat = asarray(Mat, dtype=float)
+    if mat.dtype != "float":
+        mat = asarray(mat, dtype=float)
 
     # if statement to enforce dtype float
-    B = normalize(Mat, norm="l2", axis=1)
+    B = normalize(mat, norm="l2", axis=1)
     B = numpy.reshape(B, -1)
     return B
 
@@ -37,12 +41,12 @@ def randk(t):
     return s
 
 
-def RouletteWheelSelection(weights):
-    accumulation = numpy.cumsum(weights)
-    p = random.random() * accumulation[-1]
+def rouletteWheelSelection(weights):
+    accumulations = numpy.cumsum(weights)
+    p = random.random() * accumulations[-1]
     chosen_index = -1
-    for index in range(0, len(accumulation)):
-        if accumulation[index] > p:
+    for index, accumulation in enumerate(accumulations):
+        if accumulation > p:
             chosen_index = index
             break
 
@@ -51,117 +55,117 @@ def RouletteWheelSelection(weights):
     return choice
 
 
-def MVO(objf, lb, ub, dim, N, Max_time):
+def MVO(objf, lb, ub, dim, n, maxTime):
 
-    "parameters"
-    # dim=30
-    # lb=-100
-    # ub=100
-    WEP_Max = 1
-    WEP_Min = 0.2
-    # Max_time=1000
-    # N=50
+    # parameters
+    # dim = 30
+    # lb = -100
+    # ub = 100
+    wepMax = 1
+    wepMin = 0.2
+    # maxTime=1000
+    # n=50
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
         ub = [ub] * dim
 
-    Universes = numpy.zeros((N, dim))
+    universes = numpy.zeros((n, dim))
     for i in range(dim):
-        Universes[:, i] = numpy.random.uniform(0, 1, N) * (ub[i] - lb[i]) + lb[i]
+        universes[:, i] = numpy.random.uniform(0, 1, n) * (ub[i] - lb[i]) + lb[i]
 
-    Sorted_universes = numpy.copy(Universes)
+    Sorted_universes = numpy.copy(universes)
 
-    convergence = numpy.zeros(Max_time)
+    convergence = numpy.zeros(maxTime)
 
-    Best_universe = [0] * dim
-    Best_universe_Inflation_rate = float("inf")
+    bestUniverse = [0] * dim
+    bestUniverseInflationRate = float("inf")
 
     s = solution()
 
-    Time = 1
+    time = 1
     ############################################
     print('MVO is optimizing  "' + objf.__name__ + '"')
 
     timerStart = time.time()
-    s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
-    while Time < Max_time + 1:
+    s.startTime = time.strftime('%Y-%m-%d-%H-%M-%S')
+    while time < maxTime + 1:
 
-        "Eq. (3.3) in the paper"
-        WEP = WEP_Min + Time * ((WEP_Max - WEP_Min) / Max_time)
+        # Eq. (3.3) in the paper
+        wep = wepMin + time * ((wepMax - wepMin) / maxTime)
 
-        TDR = 1 - (math.pow(Time, 1 / 6) / math.pow(Max_time, 1 / 6))
+        tdr = 1 - (math.pow(time, 1 / 6) / math.pow(maxTime, 1 / 6))
 
-        Inflation_rates = [0] * len(Universes)
+        inflationRates = [0] * len(universes)
 
-        for i in range(0, N):
+        for i in range(0, n):
             for j in range(dim):
-                Universes[i, j] = numpy.clip(Universes[i, j], lb[j], ub[j])
+                universes[i, j] = numpy.clip(universes[i, j], lb[j], ub[j])
 
-            Inflation_rates[i] = objf(Universes[i, :])
+            inflationRates[i] = objf(universes[i, :])
 
-            if Inflation_rates[i] < Best_universe_Inflation_rate:
+            if inflationRates[i] < bestUniverseInflationRate:
 
-                Best_universe_Inflation_rate = Inflation_rates[i]
-                Best_universe = numpy.array(Universes[i, :])
+                bestUniverseInflationRate = inflationRates[i]
+                bestUniverse = numpy.array(universes[i, :])
 
-        sorted_Inflation_rates = numpy.sort(Inflation_rates)
-        sorted_indexes = numpy.argsort(Inflation_rates)
+        sortedInflationRates = numpy.sort(inflationRates)
+        sortedIndexes = numpy.argsort(inflationRates)
 
-        for newindex in range(0, N):
+        for newindex in range(0, n):
             Sorted_universes[newindex, :] = numpy.array(
-                Universes[sorted_indexes[newindex], :]
+                universes[sortedIndexes[newindex], :]
             )
 
-        normalized_sorted_Inflation_rates = numpy.copy(normr(sorted_Inflation_rates))
+        normalizedSortedInflationRates = numpy.copy(normr(sortedInflationRates))
 
-        Universes[0, :] = numpy.array(Sorted_universes[0, :])
+        universes[0, :] = numpy.array(Sorted_universes[0, :])
 
-        for i in range(1, N):
-            Back_hole_index = i
+        for i in range(1, n):
+            backHoleIndex = i
             for j in range(0, dim):
                 r1 = random.random()
 
-                if r1 < normalized_sorted_Inflation_rates[i]:
-                    White_hole_index = RouletteWheelSelection(-sorted_Inflation_rates)
+                if r1 < normalizedSortedInflationRates[i]:
+                    whiteHoleIndex = rouletteWheelSelection(-sortedInflationRates)
 
-                    if White_hole_index == -1:
-                        White_hole_index = 0
-                    White_hole_index = 0
-                    Universes[Back_hole_index, j] = Sorted_universes[
-                        White_hole_index, j
+                    if whiteHoleIndex == -1:
+                        whiteHoleIndex = 0
+                    whiteHoleIndex = 0
+                    universes[backHoleIndex, j] = Sorted_universes[
+                        whiteHoleIndex, j
                     ]
 
                 r2 = random.random()
 
-                if r2 < WEP:
+                if r2 < wep:
                     r3 = random.random()
                     if r3 < 0.5:
-                        Universes[i, j] = Best_universe[j] + TDR * (
+                        universes[i, j] = bestUniverse[j] + tdr * (
                             (ub[j] - lb[j]) * random.random() + lb[j]
                         )  # random.uniform(0,1)+lb);
                     if r3 > 0.5:
-                        Universes[i, j] = Best_universe[j] - TDR * (
+                        universes[i, j] = bestUniverse[j] - tdr * (
                             (ub[j] - lb[j]) * random.random() + lb[j]
                         )  # random.uniform(0,1)+lb);
 
-        convergence[Time - 1] = Best_universe_Inflation_rate
-        if Time % 1 == 0:
+        convergence[time - 1] = bestUniverseInflationRate
+        if time % 1 == 0:
             print(
                 [
-                    "At iteration "
-                    + str(Time)
-                    + " the best fitness is "
-                    + str(Best_universe_Inflation_rate)
+                    'At iteration '
+                    + str(time)
+                    +' the best fitness is '
+                    + str(bestUniverseInflationRate)
                 ]
             )
 
-        Time = Time + 1
+        time = time + 1
     timerEnd = time.time()
-    s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
+    s.endTime = time.strftime('%Y-%m-%d-%H-%M-%S')
     s.executionTime = timerEnd - timerStart
     s.convergence = convergence
-    s.optimizer = "MVO"
+    s.optimizer = 'MVO'
     s.objfname = objf.__name__
 
     return s

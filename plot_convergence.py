@@ -2,19 +2,19 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def run(results_directory, optimizer, objectivefunc, Iterations):
+def run(results_directory, optimizers, objectiveFuncs, iterations):
     plt.ioff()
     fileResultsData = pd.read_csv(results_directory + "/experiment.csv")
 
-    for j in range(0, len(objectivefunc)):
-        objective_name = objectivefunc[j]
+    for _, objectivefunc in enumerate(objectiveFuncs):
+        objective_name = objectivefunc
 
         startIteration = 0
-        if "SSA" in optimizer:
+        if "SSA" in optimizers:
             startIteration = 1
-        allGenerations = [x + 1 for x in range(startIteration, Iterations)]
-        for i in range(len(optimizer)):
-            optimizer_name = optimizer[i]
+        allGenerations = [x + 1 for x in range(startIteration, iterations)]
+        for optimizer in enumerate(optimizers):
+            optimizer_name = optimizer
 
             row = fileResultsData[
                 (fileResultsData["Optimizer"] == optimizer_name)

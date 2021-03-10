@@ -1,22 +1,26 @@
+# -*- coding: utf-8 -*-
+
+
 """ JAYA Algorithm """
 
 import random
-import numpy
-import math
-from solution import solution
 import time
 
+import numpy
 
-def JAYA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
+from solution import solution
+
+
+def JAYA(objf, lb, ub, dim, searchAgentsNo, maxIter):
 
     # Best and Worst position initialization
-    Best_pos = numpy.zeros(dim)
-    Best_score = float("inf")
+    bestPos = numpy.zeros(dim)
+    bestScore = float("inf")
 
-    Worst_pos = numpy.zeros(dim)
-    Worst_score = float(0)
+    worstPos = numpy.zeros(dim)
+    worstScore = float(0)
 
-    fitness_matrix = numpy.zeros((SearchAgents_no))
+    fitnessMatrix = numpy.zeros((searchAgentsNo))
 
     if not isinstance(lb, list):
         lb = [lb] * dim
@@ -24,31 +28,31 @@ def JAYA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
         ub = [ub] * dim
 
     # Initialize the positions of search agents
-    Positions = numpy.zeros((SearchAgents_no, dim))
+    positions = numpy.zeros((searchAgentsNo, dim))
     for i in range(dim):
-        Positions[:, i] = (
-            numpy.random.uniform(0, 1, SearchAgents_no) * (ub[i] - lb[i]) + lb[i]
+        positions[:, i] = (
+            numpy.random.uniform(0, 1, searchAgentsNo) * (ub[i] - lb[i]) + lb[i]
         )
 
-    for i in range(0, SearchAgents_no):
+    for i in range(0, searchAgentsNo):
 
         # Return back the search agents that go beyond the boundaries of the search space
         for j in range(dim):
-            Positions[i, j] = numpy.clip(Positions[i, j], lb[j], ub[j])
+            positions[i, j] = numpy.clip(positions[i, j], lb[j], ub[j])
 
         # Calculate objective function for each search agent
-        fitness = objf(Positions[i])
-        fitness_matrix[i] = fitness
+        fitness = objf(positions[i])
+        fitnessMatrix[i] = fitness
 
-        if fitness < Best_score:
-            Best_score = fitness  # Update Best_Score
-            Best_pos = Positions[i]
+        if fitness < bestScore:
+            bestScore = fitness  # Update Best_Score
+            bestPos = positions[i]
 
-        if fitness > Worst_score:
-            Worst_score = fitness  # Update Worst_Score
-            Worst_pos = Positions[i]
+        if fitness > worstScore:
+            worstScore = fitness  # Update Worst_Score
+            worstPos = positions[i]
 
-    Convergence_curve = numpy.zeros(Max_iter)
+    convergenceCurve = numpy.zeros(maxIter)
     s = solution()
 
     # Loop counter
@@ -58,11 +62,11 @@ def JAYA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
 
     # Main loop
-    for l in range(0, Max_iter):
+    for l in range(0, maxIter):
 
         # Update the Position of search agents
-        for i in range(0, SearchAgents_no):
-            New_Position = numpy.zeros(dim)
+        for i in range(0, searchAgentsNo):
+            newPosition = numpy.zeros(dim)
             for j in range(0, dim):
 
                 # Update r1, r2
@@ -70,47 +74,47 @@ def JAYA(objf, lb, ub, dim, SearchAgents_no, Max_iter):
                 r2 = random.random()
 
                 # JAYA Equation
-                New_Position[j] = (
-                    Positions[i][j]
-                    + r1 * (Best_pos[j] - abs(Positions[i, j]))
-                    - r2 * (Worst_pos[j] - abs(Positions[i, j]))
+                newPosition[j] = (
+                    positions[i][j]
+                    + r1 * (bestPos[j] - abs(positions[i, j]))
+                    - r2 * (worstPos[j] - abs(positions[i, j]))
                 )
 
-                # checking if New_Position[j] lies in search space
-                if New_Position[j] > ub[j]:
-                    New_Position[j] = ub[j]
-                if New_Position[j] < lb[j]:
-                    New_Position[j] = lb[j]
+                # checking if newPosition[j] lies in search space
+                if newPosition[j] > ub[j]:
+                    newPosition[j] = ub[j]
+                if newPosition[j] < lb[j]:
+                    newPosition[j] = lb[j]
 
-            new_fitness = objf(New_Position)
-            current_fit = fitness_matrix[i]
+            newFitness = objf(newPosition)
+            currentFit = fitnessMatrix[i]
 
             # replacing current element with new element if it has better fitness
-            if new_fitness < current_fit:
-                Positions[i] = New_Position
-                fitness_matrix[i] = new_fitness
+            if newFitness < currentFit:
+                positions[i] = newPosition
+                fitnessMatrix[i] = newFitness
 
         # finding the best and worst element
-        for i in range(SearchAgents_no):
-            if fitness_matrix[i] < Best_score:
-                Best_score = fitness_matrix[i]
-                Best_pos = Positions[i, :].copy()
+        for i in range(searchAgentsNo):
+            if fitnessMatrix[i] < bestScore:
+                bestScore = fitnessMatrix[i]
+                bestPos = positions[i, :].copy()
 
-            if fitness_matrix[i] > Worst_score:
-                Worst_score = fitness_matrix[i]
-                Worst_pos = Positions[i, :].copy()
+            if fitnessMatrix[i] > worstScore:
+                worstScore = fitnessMatrix[i]
+                worstPos = positions[i, :].copy()
 
-        Convergence_curve[l] = Best_score
+        convergenceCurve[l] = bestScore
 
         if l % 1 == 0:
             print(
-                ["At iteration " + str(l) + " the best fitness is " + str(Best_score)]
+                ["At iteration " + str(l) + " the best fitness is " + str(bestScore)]
             )
 
     timerEnd = time.time()
     s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
     s.executionTime = timerEnd - timerStart
-    s.convergence = Convergence_curve
+    s.convergence = convergenceCurve
     s.optimizer = "JAYA"
     s.objfname = objf.__name__
 

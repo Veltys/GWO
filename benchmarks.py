@@ -5,8 +5,10 @@ Created on Tue May 17 12:46:20 2016
 @author: Hossam Faris
 """
 
-import numpy
 import math
+
+import numpy
+
 
 # define the function blocks
 def prod(it):
@@ -90,7 +92,6 @@ def F10(x):
 
 
 def F11(x):
-    dim = len(x)
     w = [i for i in range(len(x))]
     w = [i + 1 for i in w]
     o = numpy.sum(x ** 2) / 4000 - prod(numpy.cos(x / numpy.sqrt(w))) + 1
