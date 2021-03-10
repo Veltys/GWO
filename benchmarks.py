@@ -5,8 +5,14 @@ Created on Tue May 17 12:46:20 2016
 @author: Hossam Faris
 """
 
-import numpy
+import ctypes
 import math
+import os
+
+import numpy
+
+import Config
+
 
 # define the function blocks
 def prod(it):
@@ -332,7 +338,20 @@ def F23(L):
     o = fit.item(0)
     return o
 
+
+def F24(x):
+    cnf = Config.Config()
+
+    libtest = ctypes.CDLL(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'libbenchmark.' + ('dll' if os.name == 'nt' else 'so'))
+    libtest.cec20_bench.argtypes = (ctypes.c_size_t, ctypes.c_size_t, ctypes.POINTER(ctypes.c_double * len(x)), ctypes.c_ushort)
+    libtest.cec20_bench.restype = ctypes.c_double
+
+    return libtest.cec20_bench(1, x.size, (ctypes.c_double * len(x))(*x), cnf.benchmark)
+
+
 def getFunctionDetails(a):
+    cnf = Config.Config()
+
     # [name, lb, ub, dim]
     param = {
         "F1": ["F1", -100, 100, 30],
@@ -358,6 +377,7 @@ def getFunctionDetails(a):
         "F21": ["F21", 0, 10, 4],
         "F22": ["F22", 0, 10, 4],
         "F23": ["F23", 0, 10, 4],
+        "F24": ["F24", -100, 100, cnf.dimensions],
     }
     return param.get(a, "nothing")
 
