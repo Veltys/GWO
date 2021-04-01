@@ -203,3 +203,5 @@ local.properties
 input_data
 libbenchmark.dll
 libbenchmark.so
+[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+GWO_[0-9]*_[0-9][0-9].txt
