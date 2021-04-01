@@ -46,7 +46,7 @@ def main(argv):
                 # Procesamiento: ejecución del programa
                 print('Función ' + str(i) + ' dimensión ' + str(j))
 
-                subprocess.run(['.\example.py', '-b $i -d $j'])
+                subprocess.run(['.' + os.sep + 'example.py', '-b $i -d $j'])
 
             # Posprocesamiento: recopilación de resultados
 
@@ -57,7 +57,7 @@ def main(argv):
                 if re.match(r"[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}-[0-9]{1,2}-[0-9]{1,2}-[0-9]{1,2}", directorio):
                     break
 
-            archivo = directorio + "\experiment_details.csv"
+            archivo = directorio + os.sep + "experiment_details.csv"
 
             # Preparación de la matriz de resultados
             res = numpy.zeros((16, 30))
