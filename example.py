@@ -60,7 +60,7 @@ def main(argv):
     NumOfRuns = 30
 
     # Select general parameters for all optimizers (population size, number of iterations) ....
-    params = {"populationSize": 30, "iterations": 1500}
+    params = {"populationSize": 30, "iterations": 150000}
 
     # Choose whether to Export the results in different formats
     exportFlags = {

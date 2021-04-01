@@ -8,10 +8,9 @@ Created on Mon May 16 00:27:50 2016
 """
 
 
+import numpy
 import random
 import time
-
-import numpy
 
 import Config
 from solution import solution
@@ -25,6 +24,8 @@ def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
     # ub = 100
     # dim = 30
     # searchAgentsNo = 5
+
+    evals = 0
 
     # initialize alpha, beta, and delta_pos
     alphaPos = numpy.zeros(dim)
@@ -58,6 +59,10 @@ def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
     # Main loop
     for l in range(0, maxIter):
+        # Stop when evaluation limit is reached
+        if evals >= cnf.evals:
+            break
+
         for i in range(0, searchAgentsNo):
 
             # Return back the search agents that go beyond the boundaries of the search space
@@ -66,6 +71,7 @@ def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
 
             # Calculate objective function for each search agent
             fitness = objf(positions[i, :])
+            evals += 1
 
             # Update Alpha, Beta, and Delta
             if fitness < alphaScore:
