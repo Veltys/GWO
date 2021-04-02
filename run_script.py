@@ -40,7 +40,7 @@ def main(argv):
 
             if \
                 not(\
-                    argv[0] == '-r' or \
+                    (len(argv) == 1 and argv[0] == '-r') or \
                     (len(argv) == 5 and argv[4] == '-r') \
                 ):
                 # Procesamiento: ejecución del programa
