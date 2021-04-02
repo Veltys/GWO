@@ -6,10 +6,11 @@ import linecache
 import os
 import re
 from shutil import rmtree
-import subprocess
 import sys
 
 import numpy
+
+import example
 
 
 def main(argv):
@@ -44,9 +45,9 @@ def main(argv):
                     (len(argv) == 5 and argv[4] == '-r') \
                 ):
                 # Procesamiento: ejecución del programa
-                print('Función ' + str(i) + ' dimensión ' + str(j))
+                print('Función ' + str(i + funciones[2]) + ' dimensión ' + str(j + dimensiones[2]))
 
-                subprocess.run(['.' + os.sep + 'example.py', '-b $i -d $j'])
+                example.main(['-b', str(i + funciones[2]), '-d', str(j + dimensiones[2])])
 
             # Posprocesamiento: recopilación de resultados
 
