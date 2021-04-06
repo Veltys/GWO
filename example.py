@@ -66,8 +66,8 @@ def main(argv):
     exportFlags = {
         "exportAvg": True,
         "exportDetails": True,
-        "exportConvergence": True,
-        "exportBoxplot": True,
+        "exportConvergence": False,
+        "exportBoxplot": False,
     }
 
     run(optimizer, objectiveFuncs, NumOfRuns, params, exportFlags)
