@@ -1,32 +1,38 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Tue May 17 15:50:25 2016
 
 @author: hossam
 """
-from pathlib import Path
-import optimizers.PSO as pso
-import optimizers.MVO as mvo
-import optimizers.GWO as gwo
-import optimizers.MFO as mfo
-import optimizers.CS as cs
-import optimizers.BAT as bat
-import optimizers.WOA as woa
-import optimizers.FFA as ffa
-import optimizers.SSA as ssa
-import optimizers.GA as ga
-import optimizers.HHO as hho
-import optimizers.SCA as sca
-import optimizers.JAYA as jaya
-import optimizers.DE as de
-import benchmarks
+
+
 import csv
-import numpy
+from pathlib import Path
 import time
 import warnings
-import os
-import plot_convergence as conv_plot
+
+import numpy
+
+import benchmarks
+import optimizers.BAT as bat
+import optimizers.CS as cs
+import optimizers.DE as de
+import optimizers.FFA as ffa
+import optimizers.GA as ga
+import optimizers.GWO as gwo
+import optimizers.HHO as hho
+import optimizers.JAYA as jaya
+import optimizers.MFO as mfo
+import optimizers.MVO as mvo
+import optimizers.PSO as pso
+import optimizers.SCA as sca
+import optimizers.SSA as ssa
+import optimizers.WOA as woa
 import plot_boxplot as box_plot
+import plot_convergence as conv_plot
+
 
 warnings.simplefilter(action="ignore")
 
@@ -66,33 +72,33 @@ def selector(algo, func_details, popSize, Iter):
     elif algo == "DE":
         x = de.DE(getattr(benchmarks, function_name), lb, ub, dim, popSize, Iter)
     else:
-        return null
+        return None
     return x
 
 
-def run(optimizer, objectivefunc, NumOfRuns, params, export_flags):
+def run(optimizers, objectiveFuncs, NumOfRuns, params, exportFlags):
 
     """
     It serves as the main interface of the framework for running the experiments.
 
     Parameters
     ----------
-    optimizer : list
+    optimizers : list
         The list of optimizers names
-    objectivefunc : list
+    objectiveFuncs : list
         The list of benchmark functions
     NumOfRuns : int
         The number of independent runs
     params  : set
         The set of parameters which are:
-        1. Size of population (PopulationSize)
-        2. The number of iterations (Iterations)
-    export_flags : set
+        1. Size of population (populationSize)
+        2. The number of iterations (iterations)
+    exportFlags : set
         The set of Boolean flags which are:
-        1. Export (Exporting the results in a file)
-        2. Export_details (Exporting the detailed results in files)
-        3. Export_convergence (Exporting the covergence plots)
-        4. Export_boxplot (Exporting the box plots)
+        1. export (Exporting the results in a file)
+        2. exportDetails (Exporting the detailed results in files)
+        3. exportConvergence (Exporting the covergence plots)
+        4. exportBoxplot (Exporting the box plots)
 
     Returns
     -----------
@@ -100,49 +106,49 @@ def run(optimizer, objectivefunc, NumOfRuns, params, export_flags):
     """
 
     # Select general parameters for all optimizers (population size, number of iterations) ....
-    PopulationSize = params["PopulationSize"]
-    Iterations = params["Iterations"]
+    populationSize = params["populationSize"]
+    iterations = params["iterations"]
 
-    # Export results ?
-    Export = export_flags["Export_avg"]
-    Export_details = export_flags["Export_details"]
-    Export_convergence = export_flags["Export_convergence"]
-    Export_boxplot = export_flags["Export_boxplot"]
+    # export results ?
+    export = exportFlags["exportAvg"]
+    exportDetails = exportFlags["exportDetails"]
+    exportConvergence = exportFlags["exportConvergence"]
+    exportBoxplot = exportFlags["exportBoxplot"]
 
-    Flag = False
-    Flag_details = False
+    flag = False
+    flagDetails = False
 
     # CSV Header for for the cinvergence
-    CnvgHeader = []
+    cnvgHeader = []
 
-    results_directory = time.strftime("%Y-%m-%d-%H-%M-%S") + "/"
-    Path(results_directory).mkdir(parents=True, exist_ok=True)
+    resultsDirectory = time.strftime("%Y-%m-%d-%H-%M-%S") + "/"
+    Path(resultsDirectory).mkdir(parents = True, exist_ok = True)
 
-    for l in range(0, Iterations):
-        CnvgHeader.append("Iter" + str(l + 1))
+    for l in range(0, iterations):
+        cnvgHeader.append("Iter" + str(l + 1))
 
-    for i in range(0, len(optimizer)):
-        for j in range(0, len(objectivefunc)):
+    for _, optimizer in enumerate(optimizers):
+        for _, objectiveFunc in enumerate(objectiveFuncs):
             convergence = [0] * NumOfRuns
             executionTime = [0] * NumOfRuns
             for k in range(0, NumOfRuns):
-                func_details = benchmarks.getFunctionDetails(objectivefunc[j])
-                x = selector(optimizer[i], func_details, PopulationSize, Iterations)
+                func_details = benchmarks.getFunctionDetails(objectiveFunc)
+                x = selector(optimizer, func_details, populationSize, iterations)
                 convergence[k] = x.convergence
                 optimizerName = x.optimizer
                 objfname = x.objfname
-                if Export_details == True:
-                    ExportToFile = results_directory + "experiment_details.csv"
-                    with open(ExportToFile, "a", newline="\n") as out:
-                        writer = csv.writer(out, delimiter=",")
+                if exportDetails == True:
+                    exportToFile = resultsDirectory + "experiment_details.csv"
+                    with open(exportToFile, "a", newline = "\n") as out:
+                        writer = csv.writer(out, delimiter = ",")
                         if (
-                            Flag_details == False
+                            flagDetails == False
                         ):  # just one time to write the header of the CSV file
                             header = numpy.concatenate(
-                                [["Optimizer", "objfname", "ExecutionTime"], CnvgHeader]
+                                [["Optimizer", "objfname", "ExecutionTime"], cnvgHeader]
                             )
                             writer.writerow(header)
-                            Flag_details = True  # at least one experiment
+                            flagDetails = True  # at least one experiment
                         executionTime[k] = x.executionTime
                         a = numpy.concatenate(
                             [[x.optimizer, x.objfname, x.executionTime], x.convergence]
@@ -150,19 +156,19 @@ def run(optimizer, objectivefunc, NumOfRuns, params, export_flags):
                         writer.writerow(a)
                     out.close()
 
-            if Export == True:
-                ExportToFile = results_directory + "experiment.csv"
+            if export == True:
+                exportToFile = resultsDirectory + "experiment.csv"
 
-                with open(ExportToFile, "a", newline="\n") as out:
+                with open(exportToFile, "a", newline="\n") as out:
                     writer = csv.writer(out, delimiter=",")
                     if (
-                        Flag == False
+                        flag == False
                     ):  # just one time to write the header of the CSV file
                         header = numpy.concatenate(
-                            [["Optimizer", "objfname", "ExecutionTime"], CnvgHeader]
+                            [["Optimizer", "objfname", "ExecutionTime"], cnvgHeader]
                         )
                         writer.writerow(header)
-                        Flag = True
+                        flag = True
 
                     avgExecutionTime = float("%0.2f" % (sum(executionTime) / NumOfRuns))
                     avgConvergence = numpy.around(
@@ -174,13 +180,13 @@ def run(optimizer, objectivefunc, NumOfRuns, params, export_flags):
                     writer.writerow(a)
                 out.close()
 
-    if Export_convergence == True:
-        conv_plot.run(results_directory, optimizer, objectivefunc, Iterations)
+    if exportConvergence == True:
+        conv_plot.run(resultsDirectory, optimizers, objectiveFuncs, iterations)
 
-    if Export_boxplot == True:
-        box_plot.run(results_directory, optimizer, objectivefunc, Iterations)
+    if exportBoxplot == True:
+        box_plot.run(resultsDirectory, optimizers, objectiveFuncs, iterations)
 
-    if Flag == False:  # Faild to run at least one experiment
+    if flag == False:  # Faild to run at least one experiment
         print(
             "No Optomizer or Cost function is selected. Check lists of available optimizers and cost functions"
         )

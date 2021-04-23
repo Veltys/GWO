@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Sun May 29 00:49:35 2016
 
 @author: hossam
 """
+
 
 #% ======================================================== %
 #% Files of the Matlab programs included in the book:       %
@@ -17,9 +20,11 @@ Created on Sun May 29 00:49:35 2016
 #% by Xin-She Yang (Cambridge University) Copyright @2009   %
 #% -------------------------------------------------------- %
 
-import numpy
 import math
 import time
+
+import numpy
+
 from solution import solution
 
 
@@ -57,10 +62,10 @@ def FFA(objf, lb, ub, dim, n, MaxGeneration):
     ns = numpy.zeros((n, dim))
     for i in range(dim):
         ns[:, i] = numpy.random.uniform(0, 1, n) * (ub[i] - lb[i]) + lb[i]
-    Lightn = numpy.ones(n)
-    Lightn.fill(float("inf"))
+    lightn = numpy.ones(n)
+    lightn.fill(float("inf"))
 
-    # [ns,Lightn]=init_ffa(n,d,Lb,Ub,u0)
+    # [ns,lightn]=init_ffa(n,d,Lb,Ub,u0)
 
     convergence = []
     s = solution()
@@ -79,25 +84,25 @@ def FFA(objf, lb, ub, dim, n, MaxGeneration):
         #% Evaluate new solutions (for all n fireflies)
         for i in range(0, n):
             zn[i] = objf(ns[i, :])
-            Lightn[i] = zn[i]
+            lightn[i] = zn[i]
 
         # Ranking fireflies by their light intensity/objectives
 
-        Lightn = numpy.sort(zn)
+        lightn = numpy.sort(zn)
         Index = numpy.argsort(zn)
         ns = ns[Index, :]
 
         # Find the current best
         nso = ns
-        Lighto = Lightn
-        nbest = ns[0, :]
-        Lightbest = Lightn[0]
+        lighto = lightn
+        # nbest = ns[0, :]
+        Lightbest = lightn[0]
 
         #% For output only
         fbest = Lightbest
 
         #% Move all fireflies to the better locations
-        #    [ns]=ffa_move(n,d,ns,Lightn,nso,Lighto,nbest,...
+        #    [ns]=ffa_move(n,d,ns,lightn,nso,lighto,nbest,...
         #          Lightbest,alpha,betamin,gamma,Lb,Ub);
         scale = []
         for b in range(dim):
@@ -109,7 +114,7 @@ def FFA(objf, lb, ub, dim, n, MaxGeneration):
                 r = numpy.sqrt(numpy.sum((ns[i, :] - ns[j, :]) ** 2))
                 # r=1
                 # Update moves
-                if Lightn[i] > Lighto[j]:  # Brighter and more attractive
+                if lightn[i] > lighto[j]:  # Brighter and more attractive
                     beta0 = 1
                     beta = (beta0 - betamin) * math.exp(-gamma * r ** 2) + betamin
                     tmpf = alpha * (numpy.random.rand(dim) - 0.5) * scale
@@ -119,12 +124,12 @@ def FFA(objf, lb, ub, dim, n, MaxGeneration):
 
         convergence.append(fbest)
 
-        IterationNumber = k
-        BestQuality = fbest
+        # IterationNumber = k
+        bestQuality = fbest
 
         if k % 1 == 0:
             print(
-                ["At iteration " + str(k) + " the best fitness is " + str(BestQuality)]
+                ["At iteration " + str(k) + " the best fitness is " + str(bestQuality)]
             )
     #
     ####################### End main loop

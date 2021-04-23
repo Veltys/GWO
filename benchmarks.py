@@ -96,7 +96,6 @@ def F10(x):
 
 
 def F11(x):
-    dim = len(x)
     w = [i for i in range(len(x))]
     w = [i + 1 for i in w]
     o = numpy.sum(x ** 2) / 4000 - prod(numpy.cos(x / numpy.sqrt(w))) + 1

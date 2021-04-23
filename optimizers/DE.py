@@ -11,7 +11,7 @@ def DE(objf, lb, ub, dim, PopSize, iters):
 
     mutation_factor = 0.5
     crossover_ratio = 0.7
-    stopping_func = None
+    stoppingFunc = None
 
     # convert lb, ub to array
     if not isinstance(lb, list):
@@ -26,13 +26,13 @@ def DE(objf, lb, ub, dim, PopSize, iters):
     # initialize population
     population = []
 
-    population_fitness = numpy.array([float("inf") for _ in range(PopSize)])
+    populationFitness = numpy.array([float("inf") for _ in range(PopSize)])
 
     for p in range(PopSize):
         sol = []
         for d in range(dim):
-            d_val = random.uniform(lb[d], ub[d])
-            sol.append(d_val)
+            dVal = random.uniform(lb[d], ub[d])
+            sol.append(dVal)
 
         population.append(sol)
 
@@ -41,7 +41,7 @@ def DE(objf, lb, ub, dim, PopSize, iters):
     # calculate fitness for all the population
     for i in range(PopSize):
         fitness = objf(population[i, :])
-        population_fitness[p] = fitness
+        populationFitness[p] = fitness
         # s.func_evals += 1
 
         # is leader ?
@@ -49,7 +49,7 @@ def DE(objf, lb, ub, dim, PopSize, iters):
             s.best = fitness
             s.leader_solution = population[i, :]
 
-    convergence_curve = numpy.zeros(iters)
+    convergenceCurve = numpy.zeros(iters)
     # start work
     print('DE is optimizing  "' + objf.__name__ + '"')
 
@@ -59,7 +59,7 @@ def DE(objf, lb, ub, dim, PopSize, iters):
     t = 0
     while t < iters:
         # should i stop
-        if stopping_func is not None and stopping_func(s.best, s.leader_solution, t):
+        if stoppingFunc is not None and stoppingFunc(s.best, s.leader_solution, t):
             break
 
         # loop through population
@@ -67,43 +67,43 @@ def DE(objf, lb, ub, dim, PopSize, iters):
             # 1. Mutation
 
             # select 3 random solution except current solution
-            ids_except_current = [_ for _ in range(PopSize) if _ != i]
-            id_1, id_2, id_3 = random.sample(ids_except_current, 3)
+            idsExceptCurrent = [_ for _ in range(PopSize) if _ != i]
+            id1, id2, id3 = random.sample(idsExceptCurrent, 3)
 
-            mutant_sol = []
+            mutantSol = []
             for d in range(dim):
-                d_val = population[id_1, d] + mutation_factor * (
-                    population[id_2, d] - population[id_3, d]
+                dVal = population[id1, d] + mutation_factor * (
+                    population[id2, d] - population[id3, d]
                 )
 
                 # 2. Recombination
                 rn = random.uniform(0, 1)
                 if rn > crossover_ratio:
-                    d_val = population[i, d]
+                    dVal = population[i, d]
 
                 # add dimension value to the mutant solution
-                mutant_sol.append(d_val)
+                mutantSol.append(dVal)
 
             # 3. Replacement / Evaluation
 
             # clip new solution (mutant)
-            mutant_sol = numpy.clip(mutant_sol, lb, ub)
+            mutantSol = numpy.clip(mutantSol, lb, ub)
 
             # calc fitness
-            mutant_fitness = objf(mutant_sol)
+            mutantFitness = objf(mutantSol)
             # s.func_evals += 1
 
-            # replace if mutant_fitness is better
-            if mutant_fitness < population_fitness[i]:
-                population[i, :] = mutant_sol
-                population_fitness[i] = mutant_fitness
+            # replace if mutantFitness is better
+            if mutantFitness < populationFitness[i]:
+                population[i, :] = mutantSol
+                populationFitness[i] = mutantFitness
 
                 # update leader
-                if mutant_fitness < s.best:
-                    s.best = mutant_fitness
-                    s.leader_solution = mutant_sol
+                if mutantFitness < s.best:
+                    s.best = mutantFitness
+                    s.leader_solution = mutantSol
 
-        convergence_curve[t] = s.best
+        convergenceCurve[t] = s.best
         if t % 1 == 0:
             print(
                 ["At iteration " + str(t + 1) + " the best fitness is " + str(s.best)]
@@ -115,7 +115,7 @@ def DE(objf, lb, ub, dim, PopSize, iters):
         timerEnd = time.time()
         s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
         s.executionTime = timerEnd - timerStart
-        s.convergence = convergence_curve
+        s.convergence = convergenceCurve
         s.optimizer = "DE"
         s.objfname = objf.__name__
 

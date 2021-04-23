@@ -1,52 +1,57 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Mon May 16 10:42:18 2016
 
 @author: hossam
 """
 
-import random
-import numpy
+
 import math
-from solution import solution
+import random
 import time
 
+import numpy
 
-def MFO(objf, lb, ub, dim, N, Max_iteration):
+from solution import solution
 
-    # Max_iteration=1000
-    # lb=-100
-    # ub=100
-    # dim=30
-    N = 50  # Number of search agents
+
+def MFO(objf, lb, ub, dim, n, maxIteration):
+
+    # maxIteration = 1000
+    # lb = -100
+    # ub = 100
+    # dim = 30
+    n = 50  # Number of search agents
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
         ub = [ub] * dim
 
     # Initialize the positions of moths
-    Moth_pos = numpy.zeros((N, dim))
+    mothPos = numpy.zeros((n, dim))
     for i in range(dim):
-        Moth_pos[:, i] = numpy.random.uniform(0, 1, N) * (ub[i] - lb[i]) + lb[i]
-    Moth_fitness = numpy.full(N, float("inf"))
-    # Moth_fitness=numpy.fell(float("inf"))
+        mothPos[:, i] = numpy.random.uniform(0, 1, n) * (ub[i] - lb[i]) + lb[i]
+    mothFitness = numpy.full(n, float("inf"))
+    # mothFitness=numpy.fell(float("inf"))
 
-    Convergence_curve = numpy.zeros(Max_iteration)
+    convergenceCurve = numpy.zeros(maxIteration)
 
-    sorted_population = numpy.copy(Moth_pos)
-    fitness_sorted = numpy.zeros(N)
+    sortedPopulation = numpy.copy(mothPos)
+    fitnessSorted = numpy.zeros(n)
     #####################
-    best_flames = numpy.copy(Moth_pos)
-    best_flame_fitness = numpy.zeros(N)
+    bestFlames = numpy.copy(mothPos)
+    bestFlameFitness = numpy.zeros(n)
     ####################
-    double_population = numpy.zeros((2 * N, dim))
-    double_fitness = numpy.zeros(2 * N)
+    doublePopulation = numpy.zeros((2 * n, dim))
+    doubleFitness = numpy.zeros(2 * n)
 
-    double_sorted_population = numpy.zeros((2 * N, dim))
-    double_fitness_sorted = numpy.zeros(2 * N)
+    doubleSortedPopulation = numpy.zeros((2 * n, dim))
+    doubleFitnessSorted = numpy.zeros(2 * n)
     #########################
-    previous_population = numpy.zeros((N, dim))
-    previous_fitness = numpy.zeros(N)
+    previousPopulation = numpy.zeros((n, dim))
+    previousFitness = numpy.zeros(n)
 
     s = solution()
 
@@ -55,123 +60,123 @@ def MFO(objf, lb, ub, dim, N, Max_iteration):
     timerStart = time.time()
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
 
-    Iteration = 1
+    iteration = 1
 
     # Main loop
-    while Iteration < Max_iteration:
+    while iteration < maxIteration:
 
         # Number of flames Eq. (3.14) in the paper
-        Flame_no = round(N - Iteration * ((N - 1) / Max_iteration))
+        flameNo = round(n - iteration * ((n - 1) / maxIteration))
 
-        for i in range(0, N):
+        for i in range(0, n):
 
             # Check if moths go out of the search spaceand bring it back
             for j in range(dim):
-                Moth_pos[i, j] = numpy.clip(Moth_pos[i, j], lb[j], ub[j])
+                mothPos[i, j] = numpy.clip(mothPos[i, j], lb[j], ub[j])
 
             # evaluate moths
-            Moth_fitness[i] = objf(Moth_pos[i, :])
+            mothFitness[i] = objf(mothPos[i, :])
 
-        if Iteration == 1:
+        if iteration == 1:
             # Sort the first population of moths
-            fitness_sorted = numpy.sort(Moth_fitness)
-            I = numpy.argsort(Moth_fitness)
+            fitnessSorted = numpy.sort(mothFitness)
+            ii = numpy.argsort(mothFitness)
 
-            sorted_population = Moth_pos[I, :]
+            sortedPopulation = mothPos[ii, :]
 
             # Update the flames
-            best_flames = sorted_population
-            best_flame_fitness = fitness_sorted
+            bestFlames = sortedPopulation
+            bestFlameFitness = fitnessSorted
         else:
             #
             #        # Sort the moths
-            double_population = numpy.concatenate(
-                (previous_population, best_flames), axis=0
+            doublePopulation = numpy.concatenate(
+                (previousPopulation, bestFlames), axis=0
             )
-            double_fitness = numpy.concatenate(
-                (previous_fitness, best_flame_fitness), axis=0
+            doubleFitness = numpy.concatenate(
+                (previousFitness, bestFlameFitness), axis=0
             )
             #
-            double_fitness_sorted = numpy.sort(double_fitness)
-            I2 = numpy.argsort(double_fitness)
+            doubleFitnessSorted = numpy.sort(doubleFitness)
+            i2 = numpy.argsort(doubleFitness)
             #
             #
-            for newindex in range(0, 2 * N):
-                double_sorted_population[newindex, :] = numpy.array(
-                    double_population[I2[newindex], :]
+            for newindex in range(0, 2 * n):
+                doubleSortedPopulation[newindex, :] = numpy.array(
+                    doublePopulation[i2[newindex], :]
                 )
 
-            fitness_sorted = double_fitness_sorted[0:N]
-            sorted_population = double_sorted_population[0:N, :]
+            fitnessSorted = doubleFitnessSorted[0:n]
+            sortedPopulation = doubleSortedPopulation[0:n, :]
             #
             #        # Update the flames
-            best_flames = sorted_population
-            best_flame_fitness = fitness_sorted
+            bestFlames = sortedPopulation
+            bestFlameFitness = fitnessSorted
 
         #
         #   # Update the position best flame obtained so far
-        Best_flame_score = fitness_sorted[0]
-        Best_flame_pos = sorted_population[0, :]
+        bestFlameScore = fitnessSorted[0]
+        # Best_flame_pos = sortedPopulation[0, :]
         #
-        previous_population = Moth_pos
-        previous_fitness = Moth_fitness
+        previousPopulation = mothPos
+        previousFitness = mothFitness
         #
         # a linearly dicreases from -1 to -2 to calculate t in Eq. (3.12)
-        a = -1 + Iteration * ((-1) / Max_iteration)
+        a = -1 + iteration * ((-1) / maxIteration)
 
         # Loop counter
-        for i in range(0, N):
+        for i in range(0, n):
             #
             for j in range(0, dim):
                 if (
-                    i <= Flame_no
+                    i <= flameNo
                 ):  # Update the position of the moth with respect to its corresponsing flame
                     #
                     # D in Eq. (3.13)
-                    distance_to_flame = abs(sorted_population[i, j] - Moth_pos[i, j])
+                    distanceToFlame = abs(sortedPopulation[i, j] - mothPos[i, j])
                     b = 1
                     t = (a - 1) * random.random() + 1
                     #
                     #                % Eq. (3.12)
-                    Moth_pos[i, j] = (
-                        distance_to_flame * math.exp(b * t) * math.cos(t * 2 * math.pi)
-                        + sorted_population[i, j]
+                    mothPos[i, j] = (
+                        distanceToFlame * math.exp(b * t) * math.cos(t * 2 * math.pi)
+                        + sortedPopulation[i, j]
                     )
                 #            end
                 #
                 if (
-                    i > Flame_no
+                    i > flameNo
                 ):  # Upaate the position of the moth with respct to one flame
                     #
                     #                % Eq. (3.13)
-                    distance_to_flame = abs(sorted_population[i, j] - Moth_pos[i, j])
+                    distanceToFlame = abs(sortedPopulation[i, j] - mothPos[i, j])
                     b = 1
                     t = (a - 1) * random.random() + 1
                     #
                     #                % Eq. (3.12)
-                    Moth_pos[i, j] = (
-                        distance_to_flame * math.exp(b * t) * math.cos(t * 2 * math.pi)
-                        + sorted_population[Flame_no, j]
+                    mothPos[i, j] = (
+                        distanceToFlame * math.exp(b * t) * math.cos(t * 2 * math.pi)
+                        + sortedPopulation[flameNo, j]
                     )
 
-        Convergence_curve[Iteration] = Best_flame_score
+        convergenceCurve[iteration] = bestFlameScore
         # Display best fitness along the iteration
-        if Iteration % 1 == 0:
+        if iteration % 1 == 0:
             print(
                 [
                     "At iteration "
-                    + str(Iteration)
+                    + str(iteration)
                     + " the best fitness is "
-                    + str(Best_flame_score)
+                    + str(bestFlameScore)
                 ]
             )
 
-        Iteration = Iteration + 1
+        iteration = iteration + 1
 
     timerEnd = time.time()
     s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
     s.executionTime = timerEnd - timerStart
-    s.convergence = Convergence_curve
+    s.convergence = convergenceCurve
     s.optimizer = "MFO"
     s.objfname = objf.__name__
 

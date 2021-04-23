@@ -1,31 +1,31 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
-def run(results_directory, optimizer, objectivefunc, Iterations):
+def run(results_directory, optimizers, objectiveFuncs, iterations):
     plt.ioff()
 
     fileResultsDetailsData = pd.read_csv(results_directory + "/experiment_details.csv")
-    for j in range(0, len(objectivefunc)):
+    for _, objectiveFunc in enumerate(objectiveFuncs):
 
         # Box Plot
         data = []
 
-        for i in range(len(optimizer)):
-            objective_name = objectivefunc[j]
-            optimizer_name = optimizer[i]
+        for _, optimizer in enumerate(optimizers):
+            objective_name = objectiveFunc
+            optimizer_name = optimizer
 
             detailedData = fileResultsDetailsData[
                 (fileResultsDetailsData["Optimizer"] == optimizer_name)
                 & (fileResultsDetailsData["objfname"] == objective_name)
             ]
-            detailedData = detailedData["Iter" + str(Iterations)]
+            detailedData = detailedData["Iter" + str(iterations)]
             detailedData = np.array(detailedData).T.tolist()
             data.append(detailedData)
 
-        # , notch=True
-        box = plt.boxplot(data, patch_artist=True, labels=optimizer)
+        # , notch = True
+        box = plt.boxplot(data, patch_artist = True, labels = optimizers)
 
         colors = [
             "#5c9eb7",
@@ -46,12 +46,12 @@ def run(results_directory, optimizer, objectivefunc, Iterations):
             patch.set_facecolor(color)
 
         plt.legend(
-            handles=box["boxes"],
-            labels=optimizer,
-            loc="upper right",
-            bbox_to_anchor=(1.2, 1.02),
+            handles = box["boxes"],
+            labels = optimizers,
+            loc = "upper right",
+            bbox_to_anchor = (1.2, 1.02),
         )
         fig_name = results_directory + "/boxplot-" + objective_name + ".png"
-        plt.savefig(fig_name, bbox_inches="tight")
+        plt.savefig(fig_name, bbox_inches = "tight")
         plt.clf()
         # plt.show()

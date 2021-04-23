@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Sun May 15 22:37:00 2016
 
 @author: Hossam Faris
 """
 
+
 import random
-import numpy
-from solution import solution
 import time
 
+import numpy
 
-def PSO(objf, lb, ub, dim, PopSize, iters):
+from solution import solution
+
+
+def PSO(objf, lb, ub, dim, popSize, iters):
 
     # PSO parameters
 
-    Vmax = 6
+    vMax = 6
     wMax = 0.9
     wMin = 0.2
     c1 = 2
@@ -29,21 +34,21 @@ def PSO(objf, lb, ub, dim, PopSize, iters):
 
     ######################## Initializations
 
-    vel = numpy.zeros((PopSize, dim))
+    vel = numpy.zeros((popSize, dim))
 
-    pBestScore = numpy.zeros(PopSize)
+    pBestScore = numpy.zeros(popSize)
     pBestScore.fill(float("inf"))
 
-    pBest = numpy.zeros((PopSize, dim))
+    pBest = numpy.zeros((popSize, dim))
     gBest = numpy.zeros(dim)
 
     gBestScore = float("inf")
 
-    pos = numpy.zeros((PopSize, dim))
+    pos = numpy.zeros((popSize, dim))
     for i in range(dim):
-        pos[:, i] = numpy.random.uniform(0, 1, PopSize) * (ub[i] - lb[i]) + lb[i]
+        pos[:, i] = numpy.random.uniform(0, 1, popSize) * (ub[i] - lb[i]) + lb[i]
 
-    convergence_curve = numpy.zeros(iters)
+    convergenceCurve = numpy.zeros(iters)
 
     ############################################
     print('PSO is optimizing  "' + objf.__name__ + '"')
@@ -52,7 +57,7 @@ def PSO(objf, lb, ub, dim, PopSize, iters):
     s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
 
     for l in range(0, iters):
-        for i in range(0, PopSize):
+        for i in range(0, popSize):
             # pos[i,:]=checkBounds(pos[i,:],lb,ub)
             for j in range(dim):
                 pos[i, j] = numpy.clip(pos[i, j], lb[j], ub[j])
@@ -70,7 +75,7 @@ def PSO(objf, lb, ub, dim, PopSize, iters):
         # Update the W of PSO
         w = wMax - l * ((wMax - wMin) / iters)
 
-        for i in range(0, PopSize):
+        for i in range(0, popSize):
             for j in range(0, dim):
                 r1 = random.random()
                 r2 = random.random()
@@ -80,15 +85,15 @@ def PSO(objf, lb, ub, dim, PopSize, iters):
                     + c2 * r2 * (gBest[j] - pos[i, j])
                 )
 
-                if vel[i, j] > Vmax:
-                    vel[i, j] = Vmax
+                if vel[i, j] > vMax:
+                    vel[i, j] = vMax
 
-                if vel[i, j] < -Vmax:
-                    vel[i, j] = -Vmax
+                if vel[i, j] < -vMax:
+                    vel[i, j] = -vMax
 
                 pos[i, j] = pos[i, j] + vel[i, j]
 
-        convergence_curve[l] = gBestScore
+        convergenceCurve[l] = gBestScore
 
         if l % 1 == 0:
             print(
@@ -102,7 +107,7 @@ def PSO(objf, lb, ub, dim, PopSize, iters):
     timerEnd = time.time()
     s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
     s.executionTime = timerEnd - timerStart
-    s.convergence = convergence_curve
+    s.convergence = convergenceCurve
     s.optimizer = "PSO"
     s.objfname = objf.__name__
 

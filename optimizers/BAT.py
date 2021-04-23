@@ -1,50 +1,55 @@
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Thu May 26 02:00:55 2016
 
 @author: hossam
 """
-import math
-import numpy
+
+
 import random
 import time
+
+import numpy
+
 from solution import solution
 
 
-def BAT(objf, lb, ub, dim, N, Max_iteration):
+def BAT(objf, lb, ub, dim, n, maxIteration):
 
-    n = N
+    n = n
     # Population size
 
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
         ub = [ub] * dim
-    N_gen = Max_iteration  # Number of generations
+    nGen = maxIteration  # Number of generations
 
-    A = 0.5
+    a = 0.5
     # Loudness  (constant or decreasing)
     r = 0.5
     # Pulse rate (constant or decreasing)
 
-    Qmin = 0  # Frequency minimum
-    Qmax = 2  # Frequency maximum
+    qMin = 0  # Frequency minimum
+    qMax = 2  # Frequency maximum
 
     d = dim  # Number of dimensions
 
     # Initializing arrays
-    Q = numpy.zeros(n)  # Frequency
+    q = numpy.zeros(n)  # Frequency
     v = numpy.zeros((n, d))  # Velocities
-    Convergence_curve = []
+    convergenceCurve = []
 
     # Initialize the population/solutions
-    Sol = numpy.zeros((n, d))
+    sol = numpy.zeros((n, d))
     for i in range(dim):
-        Sol[:, i] = numpy.random.rand(n) * (ub[i] - lb[i]) + lb[i]
+        sol[:, i] = numpy.random.rand(n) * (ub[i] - lb[i]) + lb[i]
 
-    S = numpy.zeros((n, d))
-    S = numpy.copy(Sol)
-    Fitness = numpy.zeros(n)
+    # s = numpy.zeros((n, d))
+    s = numpy.copy(sol)
+    fitness = numpy.zeros(n)
 
     # initialize solution for the final results
     s = solution()
@@ -52,57 +57,57 @@ def BAT(objf, lb, ub, dim, N, Max_iteration):
 
     # Initialize timer for the experiment
     timerStart = time.time()
-    s.startTime = time.strftime("%Y-%m-%d-%H-%M-%S")
+    s.startTime = time.strftime("%Y-%m-%d-%H-%M-%s")
 
     # Evaluate initial random solutions
     for i in range(0, n):
-        Fitness[i] = objf(Sol[i, :])
+        fitness[i] = objf(sol[i, :])
 
     # Find the initial best solution and minimum fitness
-    I = numpy.argmin(Fitness)
-    best = Sol[I, :]
-    fmin = min(Fitness)
+    ii = numpy.argmin(fitness)
+    best = sol[ii, :]
+    fmin = min(fitness)
 
     # Main loop
-    for t in range(0, N_gen):
+    for t in range(0, nGen):
 
         # Loop over all bats(solutions)
         for i in range(0, n):
-            Q[i] = Qmin + (Qmin - Qmax) * random.random()
-            v[i, :] = v[i, :] + (Sol[i, :] - best) * Q[i]
-            S[i, :] = Sol[i, :] + v[i, :]
+            q[i] = qMin + (qMin - qMax) * random.random()
+            v[i, :] = v[i, :] + (sol[i, :] - best) * q[i]
+            s[i, :] = sol[i, :] + v[i, :]
 
             # Check boundaries
             for j in range(d):
-                Sol[i, j] = numpy.clip(Sol[i, j], lb[j], ub[j])
+                sol[i, j] = numpy.clip(sol[i, j], lb[j], ub[j])
 
             # Pulse rate
             if random.random() > r:
-                S[i, :] = best + 0.001 * numpy.random.randn(d)
+                s[i, :] = best + 0.001 * numpy.random.randn(d)
 
             # Evaluate new solutions
-            Fnew = objf(S[i, :])
+            fNew = objf(s[i, :])
 
             # Update if the solution improves
-            if (Fnew <= Fitness[i]) and (random.random() < A):
-                Sol[i, :] = numpy.copy(S[i, :])
-                Fitness[i] = Fnew
+            if (fNew <= fitness[i]) and (random.random() < a):
+                sol[i, :] = numpy.copy(s[i, :])
+                fitness[i] = fNew
 
             # Update the current best solution
-            if Fnew <= fmin:
-                best = numpy.copy(S[i, :])
-                fmin = Fnew
+            if fNew <= fmin:
+                best = numpy.copy(s[i, :])
+                fmin = fNew
 
         # update convergence curve
-        Convergence_curve.append(fmin)
+        convergenceCurve.append(fmin)
 
         if t % 1 == 0:
             print(["At iteration " + str(t) + " the best fitness is " + str(fmin)])
 
     timerEnd = time.time()
-    s.endTime = time.strftime("%Y-%m-%d-%H-%M-%S")
+    s.endTime = time.strftime("%Y-%m-%d-%H-%M-%s")
     s.executionTime = timerEnd - timerStart
-    s.convergence = Convergence_curve
+    s.convergence = convergenceCurve
     s.optimizer = "BAT"
     s.objfname = objf.__name__
 
