@@ -118,7 +118,7 @@ def run(optimizers, objectiveFuncs, NumOfRuns, params, exportFlags):
     flag = False
     flagDetails = False
 
-    # CSV Header for for the cinvergence
+    # CSV Header for for the convergence
     cnvgHeader = []
 
     resultsDirectory = time.strftime("%Y-%m-%d-%H-%M-%S") + "/"
@@ -172,7 +172,7 @@ def run(optimizers, objectiveFuncs, NumOfRuns, params, exportFlags):
 
                     avgExecutionTime = float("%0.2f" % (sum(executionTime) / NumOfRuns))
                     avgConvergence = numpy.around(
-                        numpy.mean(convergence, axis=0, dtype=numpy.float64), decimals=2
+                        numpy.mean(convergence, axis = 0, dtype = numpy.float64), decimals = 2
                     ).tolist()
                     a = numpy.concatenate(
                         [[optimizerName, objfname, avgExecutionTime], avgConvergence]
