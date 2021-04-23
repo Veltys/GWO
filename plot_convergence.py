@@ -13,7 +13,7 @@ def run(results_directory, optimizers, objectiveFuncs, iterations):
         if "SSA" in optimizers:
             startIteration = 1
         allGenerations = [x + 1 for x in range(startIteration, iterations)]
-        for optimizer in enumerate(optimizers):
+        for _, optimizer in enumerate(optimizers):
             optimizer_name = optimizer
 
             row = fileResultsData[
@@ -21,7 +21,7 @@ def run(results_directory, optimizers, objectiveFuncs, iterations):
                 & (fileResultsData["objfname"] == objective_name)
             ]
             row = row.iloc[:, 3 + startIteration :]
-            plt.plot(allGenerations, row.values.tolist()[0], label=optimizer_name)
+            plt.plot(allGenerations, row.values.tolist()[0], label = optimizer_name)
         plt.xlabel("Iterations")
         plt.ylabel("Fitness")
         plt.legend(loc="upper right", bbox_to_anchor=(1.2, 1.02))
