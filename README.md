@@ -22,8 +22,7 @@ That command above will install  `sklearn`, `NumPy`, and `SciPy` for
 you.
 
 - If you are installing EvoloPy Toolbox onto Windows, please Install Anaconda from here https://www.continuum.io/downloads, which is the leading open data science platform powered by Python.
-- If you are installing onto Ubuntu or Debian and using Python 3 then
-  this will pull in all the dependencies from the repositories:
+- If you are installing onto Ubuntu or Debian and using Python 3 then this will pull in all the dependencies from the repositories:
 
 ```sh
       sudo apt-get install python3-numpy python3-scipy liblapack-dev libatlas-base-dev libgsl0-dev fftw-dev libglpk-dev libdsdp-dev
@@ -98,5 +97,3 @@ Please include the following related citations:
 
 ## Support
 Use the [issue tracker](https://github.com/7ossam81/EvoloPy/issues). 
-
-
