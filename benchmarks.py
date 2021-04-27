@@ -5,6 +5,7 @@ Created on Tue May 17 12:46:20 2016
 @author: Hossam Faris
 """
 
+from copy import copy
 import ctypes
 import math
 import os
@@ -343,10 +344,19 @@ def F24(x):
 
     libtest = ctypes.CDLL(os.path.dirname(os.path.abspath(__file__)) + os.sep + 'libbenchmark.' + ('dll' if os.name == 'nt' else 'so'))
     libtest.cec20_bench.argtypes = (ctypes.c_size_t, ctypes.c_size_t, ctypes.POINTER(ctypes.c_double * len(x)), ctypes.c_ushort)
-    libtest.cec20_bench.restype = ctypes.c_double
+    libtest.cec20_bench.restype = ctypes.c_void_p
+    libtest.free_array.argtypes = (ctypes.c_void_p,)
+    libtest.free_array.restype = None
 
-    return libtest.cec20_bench(1, x.size, (ctypes.c_double * len(x))(*x), cnf.benchmark)
+    arr = libtest.cec20_bench(1, x.size, (ctypes.c_double * len(x))(*x), cnf.benchmark)
 
+    res = ctypes.cast(arr, ctypes.POINTER(ctypes.c_double * 1))
+
+    res = copy(res[0][0])
+
+    libtest.free_array(arr)
+
+    return res
 
 def getFunctionDetails(a):
     cnf = Config.Config()
