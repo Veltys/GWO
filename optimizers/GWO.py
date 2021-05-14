@@ -8,9 +8,10 @@ Created on Mon May 16 00:27:50 2016
 """
 
 
-import numpy
 import random
 import time
+
+import numpy
 
 import Config
 from solution import solution
@@ -141,9 +142,9 @@ def GWO(objf, lb, ub, dim, searchAgentsNo, maxIter):
 
                 positions[i, j] = (X1 + X2 + X3) / 3  # Equation (3.7)
 
-        if(cnf.verbosity):
-            convergenceCurve[l] = alphaScore
+        convergenceCurve[l] = alphaScore
 
+        if(cnf.verbosity):
             if l % 1 == 0:
                 print(
                     ["At iteration " + str(l) + " the best fitness is " + str(alphaScore)]
